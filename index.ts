@@ -80,7 +80,11 @@ app.all('/player/login/dashboard', async (req: Request, res: Response) => {
   const tDataBase64 = Buffer.from(JSON.stringify(tData)).toString('base64');
 
   // @note read dashboard template and replace placeholder
-  const templatePath = path.join(process.cwd(), 'template', 'dashboard.html');
+  const templatePath = path.join(
+    process.cwd(),
+    'template',
+    'growid-login.html',
+  );
 
   const templateContent = fs.readFileSync(templatePath, 'utf-8');
   const htmlContent = templateContent.replace('{{ data }}', tDataBase64);
@@ -143,17 +147,45 @@ app.all(
   '/player/growid/validate/checktoken',
   async (req: Request, res: Response) => {
     try {
-      // @note handle both { data: { ... } } and { refreshToken, clientData } formats
-      const body = req.body as
-        | { data: { refreshToken: string; clientData: string } }
-        | { refreshToken: string; clientData: string };
+      let refreshToken: string | undefined;
+      let clientData: string | undefined;
 
-      const refreshToken =
-        'data' in body ? body.data?.refreshToken : body.refreshToken;
-      const clientData =
-        'data' in body ? body.data?.clientData : body.clientData;
+      // @note get content type
+      const contentType = req.headers['content-type'] || '';
+
+      // @note handle JSON body (desktop client)
+      if (
+        contentType.includes('application/json') ||
+        (typeof req.body === 'object' &&
+          req.body !== null &&
+          'refreshToken' in req.body)
+      ) {
+        const formData = req.body as Record<string, string>;
+        refreshToken = formData.refreshToken;
+        clientData = formData.clientData;
+        console.log(`[CHECKTOKEN] Parsed as JSON/Object`);
+      }
+      // @note handle form-urlencoded body (from HTML form redirect)
+      else if (
+        typeof req.body === 'object' &&
+        req.body !== null &&
+        Object.keys(req.body).length > 0
+      ) {
+        const formData = req.body as Record<string, string>;
+        refreshToken = formData.refreshToken;
+        clientData = formData.clientData;
+        console.log(`[CHECKTOKEN] Parsed as form-urlencoded`);
+      }
+      // @note handle string body (raw text from mobile)
+      else if (typeof req.body === 'string' && req.body.length > 0) {
+        const params = new URLSearchParams(req.body);
+        refreshToken = params.get('refreshToken') || undefined;
+        clientData = params.get('clientData') || undefined;
+        console.log(`[CHECKTOKEN] Parsed as string/URLSearchParams`);
+      }
 
       if (!refreshToken || !clientData) {
+        console.log(`[ERROR]: Missing refreshToken or clientData`);
         res.status(400).json({
           status: 'error',
           message: 'Missing refreshToken or clientData',
