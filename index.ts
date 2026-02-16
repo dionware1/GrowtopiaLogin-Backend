@@ -53,41 +53,23 @@ app.get('/', (_req: Request, res: Response) => {
  * @param res - express response
  */
 app.all('/player/login/dashboard', async (req: Request, res: Response) => {
-  const tData: Record<string, string> = {};
-
-  // @note handle empty body or missing data
   const body = req.body;
-  if (body && typeof body === 'object' && Object.keys(body).length > 0) {
-    try {
-      const bodyStr = JSON.stringify(body);
-      const parts = bodyStr.split('"');
+  let clientData = '';
 
-      if (parts.length > 1) {
-        const uData = parts[1].split('\n');
-        for (let i = 0; i < uData.length - 1; i++) {
-          const d = uData[i].split('|');
-          if (d.length === 2) {
-            tData[d[0]] = d[1];
-          }
-        }
-      }
-    } catch (why) {
-      console.log(`[ERROR]: ${why}`);
-    }
+  // @note body comes as { "key1|val1\nkey2|val2\n...": "" }
+  // @note the actual data is in the first key, pipe-delimited with \n separators
+  if (body && typeof body === 'object' && Object.keys(body).length > 0) {
+    clientData = Object.keys(body)[0];
   }
 
-  // @note convert tData object to base64 string
-  const tDataBase64 = Buffer.from(JSON.stringify(tData)).toString('base64');
+  // @note convert clientData to base64 string without JSON quotes
+  const encodedClientData = Buffer.from(clientData).toString('base64');
 
   // @note read dashboard template and replace placeholder
-  const templatePath = path.join(
-    process.cwd(),
-    'template',
-    'growid-login.html',
-  );
+  const templatePath = path.join(process.cwd(), 'template', 'dashboard.html');
 
   const templateContent = fs.readFileSync(templatePath, 'utf-8');
-  const htmlContent = templateContent.replace('{{ data }}', tDataBase64);
+  const htmlContent = templateContent.replace('{{ data }}', encodedClientData);
 
   res.setHeader('Content-Type', 'text/html');
   res.send(htmlContent);
@@ -106,19 +88,28 @@ app.all(
       const _token = formData._token;
       const growId = formData.growId;
       const password = formData.password;
+      const email = formData.email;
 
-      const token = Buffer.from(
-        `_token=${_token}&growId=${growId}&password=${password}&reg=0`,
-      ).toString('base64');
+      let token = '';
+      if (email) {
+        token = Buffer.from(
+          `_token=${_token}&growId=${growId}&password=${password}&email=${email}&reg=1`,
+        ).toString('base64');
+      } else {
+        token = Buffer.from(
+          `_token=${_token}&growId=${growId}&password=${password}&reg=0`,
+        ).toString('base64');
+      }
 
-      res.setHeader('Content-Type', 'text/html');
-      res.json({
-        status: 'success',
-        message: 'Account Validated.',
-        token,
-        url: '',
-        accountType: 'growtopia',
-      });
+      res.send(
+        JSON.stringify({
+          status: 'success',
+          message: 'Account Validated.',
+          token,
+          url: '',
+          accountType: 'growtopia',
+        }),
+      )
     } catch (error) {
       console.log(`[ERROR]: ${error}`);
       res.status(500).json({
@@ -186,19 +177,26 @@ app.all(
 
       if (!refreshToken || !clientData) {
         console.log(`[ERROR]: Missing refreshToken or clientData`);
-        res.status(400).json({
+        res.status(200).json({
           status: 'error',
           message: 'Missing refreshToken or clientData',
         });
         return;
       }
 
-      let decodeRefreshToken = Buffer.from(refreshToken, 'base64').toString(
+      let decodedRefreshToken = Buffer.from(refreshToken, 'base64').toString(
         'utf-8',
       );
 
+      // @note remove &reg=0/1 from decodedRefreshToken if available
+      if (decodedRefreshToken.includes('&reg=0')) {
+        decodedRefreshToken = decodedRefreshToken.replace('&reg=0', '');
+      } else if (decodedRefreshToken.includes('&reg=1')) {
+        decodedRefreshToken = decodedRefreshToken.replace('&reg=1', '');
+      }
+
       const token = Buffer.from(
-        decodeRefreshToken.replace(
+        decodedRefreshToken.replace(
           /(_token=)[^&]*/,
           `$1${Buffer.from(clientData).toString('base64')}`,
         ),
@@ -209,7 +207,7 @@ app.all(
       );
     } catch (error) {
       console.log(`[ERROR]: ${error}`);
-      res.status(500).json({
+      res.status(200).json({
         status: 'error',
         message: 'Internal Server Error',
       });
