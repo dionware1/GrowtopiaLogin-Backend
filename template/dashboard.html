@@ -138,10 +138,8 @@
       <div class="form-title">Log In</div>
       <form method="POST" id="loginForm" action="/player/growid/login/validate" autocomplete="off">
         <input name="_token" type="hidden" value="{{ data }}">
-        <input id="login-name" name="growId" type="text" placeholder="Grow ID" required 
-               pattern="[A-Za-z0-9]+" title="Only letters and numbers">
-        <input id="password" name="password" type="password" placeholder="Password" required
-               pattern="[A-Za-z0-9@._!\-]+" title="Only letters, numbers, and @ . _ ! -">
+        <input id="login-name" name="growId" type="text" placeholder="Grow ID" required>
+        <input id="password" name="password" type="password" placeholder="Password" required>
         <button type="submit" id="loginBtn">Log In</button>
       </form>
       <div class="links">
@@ -154,13 +152,10 @@
       <div class="form-title">Register</div>
       <form method="POST" id="registerForm" action="/player/growid/login/validate" autocomplete="off">
         <input name="_token" type="hidden" value="{{ data }}">
-        <input id="reg-name" name="growId" type="text" placeholder="Grow ID" required
-               pattern="[A-Za-z0-9]+" title="Only letters and numbers">
+        <input id="reg-name" name="growId" type="text" placeholder="Grow ID" required>
         <input id="reg-email" name="email" type="email" placeholder="Email" required>
-        <input id="reg-password" name="password" type="password" placeholder="Password" required
-               pattern="[A-Za-z0-9@._!\-]+" title="Only letters, numbers, and @ . _ ! -">
-        <input id="reg-confirm" name="password_confirmation" type="password" placeholder="Confirm Password" required
-               pattern="[A-Za-z0-9@._!\-]+" title="Only letters, numbers, and @ . _ ! -">
+        <input id="reg-password" name="password" type="password" placeholder="Password" required>
+        <input id="reg-confirm" name="password_confirmation" type="password" placeholder="Confirm Password" required>
         <button type="submit" id="registerBtn">Register</button>
       </form>
       <div class="links">
@@ -174,12 +169,6 @@
       document.getElementById('loginSection').classList.toggle('hidden', type !== 'login');
       document.getElementById('registerSection').classList.toggle('hidden', type !== 'register');
     }
-
-    document.querySelectorAll('input[pattern]').forEach(input => {
-      input.addEventListener('input', function() {
-        this.value = this.value.replace(new RegExp('[^' + this.pattern.replace(/\[|\]|\-/g, '') + ']', 'g'), '');
-      });
-    });
 
     document.getElementById('loginForm').addEventListener('submit', function(e) {
       const btn = document.getElementById('loginBtn');
