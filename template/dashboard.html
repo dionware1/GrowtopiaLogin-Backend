@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" style="background-color: #0a0a0a; width:100%; height: 100%;">
+<html lang="en" style="background-color: rgba(0,0,0,0); width:100%; height: 100%;">
 
 <head>
   <meta charset="utf-8">
@@ -26,7 +26,7 @@
     }
     
     body {
-      background-color: #0a0a0a !important;
+      background-color: rgba(0,0,0,0) !important;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       display: flex;
       justify-content: center;
@@ -39,7 +39,7 @@
       border: 1px solid #dc2626;
       border-radius: 8px;
       padding: 25px;
-      width: 320px;
+      width: 300px;
       box-shadow: 0 0 20px rgba(220, 38, 38, 0.3);
     }
 
@@ -69,44 +69,51 @@
       margin-bottom: 12px;
     }
 
-    .form-control {
+    input.form-control.grow-text {
+      background-color: #1a1a1a !important;
       background: #1a1a1a !important;
       border: 1px solid #333 !important;
       color: #fff !important;
       width: 100%;
-      padding: 10px 12px;
-      font-size: 13px;
+      padding: 12px;
+      font-size: 14px;
       border-radius: 4px;
       transition: all 0.3s ease;
       -webkit-appearance: none;
       -moz-appearance: none;
       appearance: none;
+      outline: none;
+      display: block;
+      height: auto;
+      line-height: normal;
     }
 
-    .form-control:focus {
-      outline: none;
+    input.form-control.grow-text:focus {
       border-color: #dc2626 !important;
       box-shadow: 0 0 8px rgba(220, 38, 38, 0.4);
+      background-color: #1a1a1a !important;
       background: #1a1a1a !important;
     }
 
-    .form-control::placeholder {
-      color: #555;
+    input.form-control.grow-text::placeholder {
+      color: #666;
     }
 
-    /* Autofill rengini engelle - antrasit gri sabit */
-    .form-control:-webkit-autofill,
-    .form-control:-webkit-autofill:hover,
-    .form-control:-webkit-autofill:focus,
-    .form-control:-webkit-autofill:active {
+    /* Autofill rengini engelle */
+    input.form-control.grow-text:-webkit-autofill,
+    input.form-control.grow-text:-webkit-autofill:hover,
+    input.form-control.grow-text:-webkit-autofill:focus,
+    input.form-control.grow-text:-webkit-autofill:active {
       -webkit-box-shadow: 0 0 0 30px #1a1a1a inset !important;
       -webkit-text-fill-color: #fff !important;
       transition: background-color 5000s ease-in-out 0s;
+      background-color: #1a1a1a !important;
     }
 
-    .btn-primary {
-      background: #dc2626;
-      border: none;
+    input.btn.btn-lg.btn-primary.grow-button {
+      background: #dc2626 !important;
+      background-color: #dc2626 !important;
+      border: none !important;
       color: #fff;
       width: 100%;
       padding: 12px;
@@ -118,15 +125,21 @@
       cursor: pointer;
       transition: all 0.3s ease;
       margin-top: 8px;
+      display: block;
+      height: auto;
+      line-height: normal;
+      box-shadow: none;
     }
 
-    .btn-primary:hover {
-      background: #b91c1c;
+    input.btn.btn-lg.btn-primary.grow-button:hover {
+      background: #b91c1c !important;
+      background-color: #b91c1c !important;
       box-shadow: 0 0 15px rgba(220, 38, 38, 0.5);
     }
 
-    .btn-primary:disabled {
-      background: #333;
+    input.btn.btn-lg.btn-primary.grow-button:disabled {
+      background: #333 !important;
+      background-color: #333 !important;
       cursor: not-allowed;
     }
 
